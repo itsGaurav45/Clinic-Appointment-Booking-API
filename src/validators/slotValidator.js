@@ -1,10 +1,6 @@
-const { BadRequestError } = require('../utils/errors');
+import { BadRequestError } from '../utils/errors.js';
 
-/**
- * Validates the payload for creating a slot.
- * @param {object} body
- */
-function validateCreateSlot(body) {
+export function validateCreateSlot(body) {
   const errors = [];
   const { clinic_id, doctor_name, start_time, end_time } = body;
 
@@ -61,7 +57,3 @@ function validateCreateSlot(body) {
     end_time: endDate.toISOString(),
   };
 }
-
-module.exports = {
-  validateCreateSlot,
-};

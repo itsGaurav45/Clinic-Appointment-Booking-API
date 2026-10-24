@@ -1,7 +1,7 @@
-const BookingService = require('../services/bookingService');
-const { validateCreateBooking } = require('../validators/bookingValidator');
+import BookingService from '../services/bookingService.js';
+import { validateCreateBooking } from '../validators/bookingValidator.js';
 
-class BookingController {
+export default class BookingController {
   static create(req, res, next) {
     try {
       const validatedData = validateCreateBooking(req.body);
@@ -61,5 +61,3 @@ class BookingController {
     }
   }
 }
-
-module.exports = BookingController;

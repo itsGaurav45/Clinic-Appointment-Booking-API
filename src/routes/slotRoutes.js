@@ -1,5 +1,5 @@
-const express = require('express');
-const SlotController = require('../controllers/slotController');
+import express from 'express';
+import SlotController from '../controllers/slotController.js';
 
 const router = express.Router();
 
@@ -9,4 +9,4 @@ router.get('/:id', SlotController.getById);
 router.patch('/:id/cancel', SlotController.cancel);
 router.delete('/:id', SlotController.cancel);
 
-module.exports = router;
+export default router;

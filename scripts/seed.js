@@ -1,14 +1,9 @@
-/**
- * Database Seeder
- * Populates realistic sample clinics, doctors, and available/booked slots for local testing and evaluation.
- */
-const { getDb } = require('../src/config/db');
+import { getDb } from '../src/config/db.js';
 
-function seed() {
+export function seed() {
   const db = getDb();
   console.log('Seeding database with realistic clinic appointments...');
 
-  // Clear existing data
   db.exec(`
     DELETE FROM bookings;
     DELETE FROM slots;
@@ -16,7 +11,6 @@ function seed() {
 
   const now = new Date();
   
-  // Helper to get formatted ISO time offset by days and hours
   const getTime = (daysOffset, hours, minutes = 0) => {
     const d = new Date(now);
     d.setDate(d.getDate() + daysOffset);
@@ -25,7 +19,6 @@ function seed() {
   };
 
   const sampleSlots = [
-    // Apollo Hospital - Dr. Rajesh Sharma (Cardiology)
     {
       clinic_id: 'apollo-delhi',
       doctor_name: 'Dr. Rajesh Sharma (Cardiology)',
@@ -47,7 +40,6 @@ function seed() {
       end_time: getTime(1, 11, 30),
       status: 'AVAILABLE',
     },
-    // Apollo Hospital - Dr. Neha Gupta (Pediatrics)
     {
       clinic_id: 'apollo-delhi',
       doctor_name: 'Dr. Neha Gupta (Pediatrics)',
@@ -62,7 +54,6 @@ function seed() {
       end_time: getTime(1, 15, 30),
       status: 'AVAILABLE',
     },
-    // Fortis Healthcare - Dr. Amit Patel (Orthopedics)
     {
       clinic_id: 'fortis-noida',
       doctor_name: 'Dr. Amit Patel (Orthopedics)',
@@ -77,7 +68,6 @@ function seed() {
       end_time: getTime(2, 11, 45),
       status: 'AVAILABLE',
     },
-    // Max Healthcare - Dr. Sunita Rao (Dermatology)
     {
       clinic_id: 'max-gurugram',
       doctor_name: 'Dr. Sunita Rao (Dermatology)',
@@ -124,8 +114,4 @@ function seed() {
   console.log(`Database seeded successfully with ${sampleSlots.length + 1} slots and 1 sample booking!`);
 }
 
-if (require.main === module) {
-  seed();
-}
-
-module.exports = seed;
+seed();

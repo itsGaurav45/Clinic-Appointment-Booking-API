@@ -1,11 +1,11 @@
-const express = require('express');
-const cors = require('cors');
-const { getDb } = require('./config/db');
-const slotRoutes = require('./routes/slotRoutes');
-const bookingRoutes = require('./routes/bookingRoutes');
-const errorHandler = require('./middlewares/errorHandler');
+import express from 'express';
+import cors from 'cors';
+import { getDb } from './config/db.js';
+import slotRoutes from './routes/slotRoutes.js';
+import bookingRoutes from './routes/bookingRoutes.js';
+import errorHandler from './middlewares/errorHandler.js';
 
-function createApp(options = {}) {
+export default function createApp(options = {}) {
   const app = express();
   const db = options.db || getDb();
 
@@ -32,5 +32,3 @@ function createApp(options = {}) {
 
   return app;
 }
-
-module.exports = createApp;

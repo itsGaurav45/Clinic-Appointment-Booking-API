@@ -1,17 +1,12 @@
-const { getDb } = require('../config/db');
-const { NotFoundError, ConflictError, BadRequestError } = require('../utils/errors');
+import { getDb } from '../config/db.js';
+import { NotFoundError, ConflictError, BadRequestError } from '../utils/errors.js';
 
-class BookingService {
-  /**
-   * Book an available slot for a patient.
-   * Uses an atomic transaction and conditional update to prevent double-booking.
-   */
+export default class BookingService {
   static createBooking(data, customDb) {
     const db = customDb || getDb();
     const { slot_id, patient_name, patient_email, patient_phone } = data;
 
     const bookTransaction = db.transaction(() => {
-      // Check slot existence and current status
       const slot = db.prepare('SELECT * FROM slots WHERE id = ?').get(slot_id);
 
       if (!slot) {
@@ -26,7 +21,6 @@ class BookingService {
         throw new ConflictError(`Slot ${slot_id} is already booked`);
       }
 
-      // Atomic conditional update: only update if status is still AVAILABLE
       const updateResult = db.prepare(`
         UPDATE slots 
         SET status = 'BOOKED', updated_at = datetime('now') 
@@ -160,7 +154,6 @@ class BookingService {
         WHERE id = ?
       `).run(id);
 
-      // Reopen the slot if it is still marked BOOKED
       db.prepare(`
         UPDATE slots 
         SET status = 'AVAILABLE', updated_at = datetime('now') 
@@ -194,5 +187,3 @@ class BookingService {
     };
   }
 }
-
-module.exports = BookingService;

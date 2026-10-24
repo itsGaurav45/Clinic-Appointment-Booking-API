@@ -1,8 +1,12 @@
-const Database = require('better-sqlite3');
-const path = require('path');
-const fs = require('fs');
+import Database from 'better-sqlite3';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
 
-function initDatabase(dbPath) {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export function initDatabase(dbPath) {
   const isTest = process.env.NODE_ENV === 'test';
   const targetPath = dbPath || (isTest ? ':memory:' : path.resolve(__dirname, '../../clinic.db'));
 
@@ -54,7 +58,6 @@ function createSchema(db) {
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
-    -- Unique constraint ensures only one confirmed booking per slot
     CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_active_booking 
       ON bookings(slot_id) WHERE status = 'CONFIRMED';
 
@@ -64,19 +67,13 @@ function createSchema(db) {
 
 let defaultDb = null;
 
-function getDb() {
+export function getDb() {
   if (!defaultDb) {
     defaultDb = initDatabase();
   }
   return defaultDb;
 }
 
-function setDb(customDb) {
+export function setDb(customDb) {
   defaultDb = customDb;
 }
-
-module.exports = {
-  initDatabase,
-  getDb,
-  setDb,
-};

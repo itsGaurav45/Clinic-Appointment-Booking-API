@@ -1,6 +1,6 @@
-const request = require('supertest');
-const createApp = require('../src/app');
-const { initDatabase } = require('../src/config/db');
+import request from 'supertest';
+import createApp from '../src/app.js';
+import { initDatabase } from '../src/config/db.js';
 
 describe('Booking Concurrency & Race Conditions', () => {
   let app;
@@ -26,7 +26,6 @@ describe('Booking Concurrency & Race Conditions', () => {
     });
     const slotId = slotRes.body.data.id;
 
-    // Send two booking requests concurrently
     const req1 = request(app).post('/api/bookings').send({
       slot_id: slotId,
       patient_name: 'Rahul Kumar',
@@ -42,15 +41,12 @@ describe('Booking Concurrency & Race Conditions', () => {
     const [res1, res2] = await Promise.all([req1, req2]);
     const statuses = [res1.status, res2.status].sort();
 
-    // Exactly one should succeed (201) and one should get a conflict (409)
     expect(statuses).toEqual([201, 409]);
 
-    // Check database has only 1 confirmed booking
     const bookings = db.prepare('SELECT * FROM bookings WHERE slot_id = ?').all(slotId);
     expect(bookings.length).toBe(1);
     expect(bookings[0].status).toBe('CONFIRMED');
 
-    // Slot status must be BOOKED
     const slot = db.prepare('SELECT status FROM slots WHERE id = ?').get(slotId);
     expect(slot.status).toBe('BOOKED');
   });

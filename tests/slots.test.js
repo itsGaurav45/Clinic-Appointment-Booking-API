@@ -1,13 +1,12 @@
-const request = require('supertest');
-const createApp = require('../src/app');
-const { initDatabase } = require('../src/config/db');
+import request from 'supertest';
+import createApp from '../src/app.js';
+import { initDatabase } from '../src/config/db.js';
 
 describe('Slot Management Rules & API Endpoints', () => {
   let app;
   let db;
 
   beforeEach(() => {
-    // Fresh in-memory database for complete isolation in every test
     db = initDatabase(':memory:');
     app = createApp({ db });
   });
@@ -87,11 +86,9 @@ describe('Slot Management Rules & API Endpoints', () => {
         end_time: '2026-11-01T11:00:00.000Z',
       };
 
-      // Create first slot (10:00 - 11:00)
       const res1 = await request(app).post('/api/slots').send(baseSlot);
       expect(res1.status).toBe(201);
 
-      // Attempt to create overlapping slot (10:30 - 11:30) for same doctor
       const overlappingSlot = {
         clinic_id: 'clinic-apollo-1',
         doctor_name: 'Dr. Sharma',
@@ -127,7 +124,6 @@ describe('Slot Management Rules & API Endpoints', () => {
 
   describe('GET /api/slots - Listing & Filtering', () => {
     beforeEach(async () => {
-      // Seed slots
       await request(app).post('/api/slots').send({
         clinic_id: 'clinic-1',
         doctor_name: 'Dr. A',
@@ -212,7 +208,6 @@ describe('Slot Management Rules & API Endpoints', () => {
 
       const slotId = createSlotRes.body.data.id;
 
-      // Patient books the slot
       const bookRes = await request(app).post('/api/bookings').send({
         slot_id: slotId,
         patient_name: 'Aarav Patel',
@@ -221,12 +216,10 @@ describe('Slot Management Rules & API Endpoints', () => {
       expect(bookRes.status).toBe(201);
       const bookingId = bookRes.body.data.id;
 
-      // Clinic cancels the slot
       const cancelRes = await request(app).patch(`/api/slots/${slotId}/cancel`);
       expect(cancelRes.status).toBe(200);
       expect(cancelRes.body.data.status).toBe('CANCELLED');
 
-      // Verify the booking status was also updated to CANCELLED
       const checkBookingRes = await request(app).get(`/api/bookings/${bookingId}`);
       expect(checkBookingRes.status).toBe(200);
       expect(checkBookingRes.body.data.status).toBe('CANCELLED');

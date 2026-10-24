@@ -1,6 +1,6 @@
-const { AppError } = require('../utils/errors');
+import { AppError } from '../utils/errors.js';
 
-function errorHandler(err, req, res, next) {
+export default function errorHandler(err, req, res, next) {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
       success: false,
@@ -22,5 +22,3 @@ function errorHandler(err, req, res, next) {
     error: 'Internal Server Error',
   });
 }
-
-module.exports = errorHandler;

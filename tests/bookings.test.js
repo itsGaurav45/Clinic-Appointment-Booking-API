@@ -1,6 +1,6 @@
-const request = require('supertest');
-const createApp = require('../src/app');
-const { initDatabase } = require('../src/config/db');
+import request from 'supertest';
+import createApp from '../src/app.js';
+import { initDatabase } from '../src/config/db.js';
 
 describe('Booking Rules & API Endpoints', () => {
   let app;
@@ -48,7 +48,6 @@ describe('Booking Rules & API Endpoints', () => {
       expect(res.body.data.status).toBe('CONFIRMED');
       expect(res.body.data.slot.status).toBe('BOOKED');
 
-      // Verify slot status in database is now BOOKED
       const slotRes = await request(app).get(`/api/slots/${availableSlotId}`);
       expect(slotRes.body.data.status).toBe('BOOKED');
       expect(slotRes.body.data.booking.patient_name).toBe('Rohit Sharma');
@@ -83,14 +82,12 @@ describe('Booking Rules & API Endpoints', () => {
     });
 
     test('returns 409 Conflict when attempting to book an already booked slot', async () => {
-      // First booking succeeds
       await request(app).post('/api/bookings').send({
         slot_id: availableSlotId,
         patient_name: 'Patient One',
         patient_email: 'patient1@example.com',
       });
 
-      // Second booking attempt on same slot
       const secondRes = await request(app).post('/api/bookings').send({
         slot_id: availableSlotId,
         patient_name: 'Patient Two',
@@ -103,10 +100,8 @@ describe('Booking Rules & API Endpoints', () => {
     });
 
     test('returns 400 when attempting to book a slot cancelled by the clinic', async () => {
-      // Cancel the slot
       await request(app).patch(`/api/slots/${availableSlotId}/cancel`);
 
-      // Attempt to book cancelled slot
       const res = await request(app).post('/api/bookings').send({
         slot_id: availableSlotId,
         patient_name: 'Rohit Sharma',
@@ -146,17 +141,14 @@ describe('Booking Rules & API Endpoints', () => {
       expect(cancelRes.status).toBe(200);
       expect(cancelRes.body.data.status).toBe('CANCELLED');
 
-      // Verify slot is now AVAILABLE again for other patients
       const slotRes = await request(app).get(`/api/slots/${slotId}`);
       expect(slotRes.body.data.status).toBe('AVAILABLE');
       expect(slotRes.body.data.booking).toBeNull();
     });
 
     test('allows a new patient to book the slot after previous booking was cancelled', async () => {
-      // Cancel first booking
       await request(app).patch(`/api/bookings/${bookingId}/cancel`);
 
-      // Second patient books the same slot
       const newBookRes = await request(app).post('/api/bookings').send({
         slot_id: slotId,
         patient_name: 'Jasprit Bumrah',
@@ -167,7 +159,6 @@ describe('Booking Rules & API Endpoints', () => {
       expect(newBookRes.body.data.patient_name).toBe('Jasprit Bumrah');
       expect(newBookRes.body.data.status).toBe('CONFIRMED');
 
-      // Verify slot is BOOKED again
       const slotRes = await request(app).get(`/api/slots/${slotId}`);
       expect(slotRes.body.data.status).toBe('BOOKED');
       expect(slotRes.body.data.booking.patient_name).toBe('Jasprit Bumrah');

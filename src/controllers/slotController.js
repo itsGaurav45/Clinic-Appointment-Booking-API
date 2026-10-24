@@ -1,7 +1,7 @@
-const SlotService = require('../services/slotService');
-const { validateCreateSlot } = require('../validators/slotValidator');
+import SlotService from '../services/slotService.js';
+import { validateCreateSlot } from '../validators/slotValidator.js';
 
-class SlotController {
+export default class SlotController {
   static create(req, res, next) {
     try {
       const validatedData = validateCreateSlot(req.body);
@@ -63,5 +63,3 @@ class SlotController {
     }
   }
 }
-
-module.exports = SlotController;

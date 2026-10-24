@@ -1,12 +1,8 @@
-const { BadRequestError } = require('../utils/errors');
+import { BadRequestError } from '../utils/errors.js';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/**
- * Validates the payload for creating a booking.
- * @param {object} body
- */
-function validateCreateBooking(body) {
+export function validateCreateBooking(body) {
   const errors = [];
   const { slot_id, patient_name, patient_email, patient_phone } = body;
 
@@ -40,7 +36,3 @@ function validateCreateBooking(body) {
     patient_phone: patient_phone ? patient_phone.trim() : null,
   };
 }
-
-module.exports = {
-  validateCreateBooking,
-};

@@ -1,18 +1,11 @@
-const { getDb } = require('../config/db');
-const { NotFoundError, ConflictError, BadRequestError } = require('../utils/errors');
+import { getDb } from '../config/db.js';
+import { NotFoundError, ConflictError, BadRequestError } from '../utils/errors.js';
 
-class SlotService {
-  /**
-   * Creates a new appointment slot for a clinic and doctor.
-   * Enforces that no overlapping slots exist for the same clinic and doctor.
-   */
+export default class SlotService {
   static createSlot(data, customDb) {
     const db = customDb || getDb();
     const { clinic_id, doctor_name, start_time, end_time } = data;
 
-    // Check for overlapping active slots for the same clinic and doctor
-    // Two intervals [start_time, end_time] and [s.start_time, s.end_time] overlap if:
-    // start_time < s.end_time AND end_time > s.start_time
     const overlapStmt = db.prepare(`
       SELECT id, start_time, end_time, status 
       FROM slots 
@@ -42,9 +35,6 @@ class SlotService {
     return this.getSlotById(result.lastInsertRowid, db);
   }
 
-  /**
-   * Retrieves a slot by its primary key ID.
-   */
   static getSlotById(id, customDb) {
     const db = customDb || getDb();
     const stmt = db.prepare(`
@@ -75,9 +65,6 @@ class SlotService {
     return this.formatSlotRow(row);
   }
 
-  /**
-   * Lists slots with optional filters.
-   */
   static listSlots(filters = {}, customDb) {
     const db = customDb || getDb();
     const conditions = [];
@@ -137,15 +124,10 @@ class SlotService {
     return rows.map(this.formatSlotRow);
   }
 
-  /**
-   * Cancels a slot.
-   * If slot is currently booked, the active booking is automatically cancelled inside a transaction.
-   */
   static cancelSlot(id, customDb) {
     const db = customDb || getDb();
 
     const cancelTransaction = db.transaction(() => {
-      // 1. Fetch current slot state
       const slotStmt = db.prepare('SELECT * FROM slots WHERE id = ?');
       const slot = slotStmt.get(id);
 
@@ -157,7 +139,6 @@ class SlotService {
         throw new BadRequestError(`Slot with ID ${id} is already cancelled`);
       }
 
-      // 2. If it has an active booking, cancel it
       let cancelledBookingId = null;
       if (slot.status === 'BOOKED') {
         const updateBookingStmt = db.prepare(`
@@ -171,7 +152,6 @@ class SlotService {
         }
       }
 
-      // 3. Update slot status to CANCELLED
       const updateSlotStmt = db.prepare(`
         UPDATE slots 
         SET status = 'CANCELLED', updated_at = datetime('now')
@@ -189,9 +169,6 @@ class SlotService {
     return this.getSlotById(result.slotId, db);
   }
 
-  /**
-   * Helper to format SQL row into clean nested object.
-   */
   static formatSlotRow(row) {
     const slot = {
       id: row.id,
@@ -218,5 +195,3 @@ class SlotService {
     return slot;
   }
 }
-
-module.exports = SlotService;
