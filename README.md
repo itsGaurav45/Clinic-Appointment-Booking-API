@@ -59,8 +59,8 @@ Preventing race conditions where two requests arrive simultaneously is achieved 
 ### Installation
 
 ```bash
-git clone <repository-url>
-cd Task
+git clone https://github.com/itsGaurav45/Clinic-Appointment-Booking-API.git
+cd Clinic-Appointment-Booking-API
 npm install
 ```
 
@@ -216,7 +216,7 @@ Cancelling an appointment automatically updates the booking status to `CANCELLED
 ## Project Structure
 
 ```
-Task/
+Clinic-Appointment-Booking-API/
 ├── src/
 │   ├── config/
 │   │   └── db.js                 # Database initialization, WAL mode, schema & constraints
